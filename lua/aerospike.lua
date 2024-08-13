@@ -1057,13 +1057,13 @@ local function dissect_aerospike_msg (tvbuf, subtree, data, size, packet_type, v
 
       if fields_count > 0 then
          operations_start = dissect_aerospike_msg_fields(tvbuf, subtree, data, fields_count, packet_type, visited)
-         data = operations_start
+         data = tonumber(operations_start)
       end
 
       if ops_count > 0 then
          if operations_start == 0 then operations_start = data end -- when only ops
          next_header_start = dissect_aerospike_msg_operations(tvbuf, subtree, operations_start)
-         data = next_header_start
+         data = tonumber(next_header_start)
       end
    end
 end
@@ -1114,7 +1114,7 @@ function msg_proto_dissector(tvbuf, pktinfo, root)
 
          local tree = root:add(aerospike_info_proto, tvbuf:range(0, pktlen))
          dissect_aerospike_info(tvbuf, tree, size)
-         data = data + size + MSG_HEADER_SZ_START
+         data = data + size:tonumber() + MSG_HEADER_SZ_START
 
       elseif header_type_val == PROTO_TYPE_MSG then     -- MSG
 
@@ -1125,7 +1125,7 @@ function msg_proto_dissector(tvbuf, pktinfo, root)
          subtree:add(message_proto_fields.size, size_tvbr)
 
          data = data + MSG_HEADER_SZ_START
-         cumulative_size = cumulative_size + size + MSG_HEADER_SZ_START
+         cumulative_size = cumulative_size + size:tonumber() + MSG_HEADER_SZ_START
 
          if pktinfo.src_port == default_settings.aerospike_port then
             packet_type = PACKET_RESPONSE
